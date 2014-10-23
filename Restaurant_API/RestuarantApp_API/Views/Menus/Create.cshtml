@@ -1,0 +1,112 @@
+﻿@model RestuarantApp_API.Models.Menu
+
+@{
+    ViewBag.Title = "Create";
+}
+<h2>Create</h2>
+
+
+@Html.AntiForgeryToken()
+<div class="form-horizontal">
+    <h4>Menu</h4>
+    <hr />
+    @Html.ValidationSummary(true)
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Name, new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Name)
+            @Html.ValidationMessageFor(model => model.Name)
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Price, new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Price)
+            @Html.ValidationMessageFor(model => model.Price)
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.ImageUrl, new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.ImageUrl)
+            @Html.ValidationMessageFor(model => model.ImageUrl)
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Description, new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Description)
+            @Html.ValidationMessageFor(model => model.Description)
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.CreatedDate, new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.CreatedDate)
+            @Html.ValidationMessageFor(model => model.CreatedDate)
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.CreatedBy, new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.CreatedBy)
+
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.SubCategoryId, "SubCategoryId", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.DropDownList("SubCategoryId", String.Empty)
+            @Html.ValidationMessageFor(model => model.SubCategoryId)
+        </div>
+    </div>
+
+</div>
+<div class="checkbox">@Html.CheckBox("chkIsDeal")<label for="chkIsDeal">  Is Deal </label></div>
+<div id="menuItemsPanel" style="display:none" class="form-horizontal">
+    <div class="h4">Menu Items</div>
+    <div class="appendItems">
+        <div id="item-row1">
+            <div class="row">
+                <input type="text" name="name" id="ItemName1" placeholder="Name" />
+            </div>
+            <div class="row">
+                <input type="text" name="imageUrl" id="ItemImageUrl1" placeholder="ImageUrl" />
+            </div>
+            <div class="row">
+                <textarea name="description" id="ItemDescription1" data-val="true" class="text-box multi-line" placeholder="Description"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <a href="#" id="AddMoreItems" class="add">Add More</a>
+        
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-md-offset-2 col-md-10">
+        <input type="button" value="Create" class="btn btn-default" />
+    </div>
+    <div class="error_message">
+        <div id="SuccessMessage"></div>
+        <div id="ErrorMessage"></div>
+    </div>
+</div>
+
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/app.js"></script>
+}
