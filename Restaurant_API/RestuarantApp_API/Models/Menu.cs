@@ -9,8 +9,10 @@ namespace RestuarantApp_API.Models
 {
     public class Menu
     {
-        public Menu() {
+        public Menu()
+        {
             MenuItems = new List<MenuItem>();
+            CreatedDate = DateTime.Now;
         }
         public int Id { set; get; }
         [Required]
@@ -40,6 +42,11 @@ namespace RestuarantApp_API.Models
         public int CategoryId { set; get; }
         [NotMapped]
         public string CategoryImageUrl { set; get; }
+        [NotMapped]
+        public string MenuItemsIds { set; get; }
+         [NotMapped]
+        [DataType(DataType.Upload)]
+        public HttpPostedFileBase ImageUpload { set; get; }
         //Menu Item Relation
         public virtual ICollection<MenuItem> MenuItems { set; get; }
         public ICollection<OrderMenu> Orders { set; get; }

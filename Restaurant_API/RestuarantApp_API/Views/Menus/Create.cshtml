@@ -1,11 +1,8 @@
 ﻿@model RestuarantApp_API.Models.Menu
-
 @{
     ViewBag.Title = "Create";
 }
 <h2>Create</h2>
-
-
 @Html.AntiForgeryToken()
 <div class="form-horizontal">
     <h4>Menu</h4>
@@ -27,37 +24,20 @@
             @Html.ValidationMessageFor(model => model.Price)
         </div>
     </div>
-
     <div class="form-group">
-        @Html.LabelFor(model => model.ImageUrl, new { @class = "control-label col-md-2" })
+        @Html.LabelFor(model => model.ImageUrl, new { @class = "control-label col-md-2", required = "required" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.ImageUrl)
+            <input type="file" name="ImageUpload" />
             @Html.ValidationMessageFor(model => model.ImageUrl)
         </div>
     </div>
-
     <div class="form-group">
         @Html.LabelFor(model => model.Description, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.EditorFor(model => model.Description)
             @Html.ValidationMessageFor(model => model.Description)
         </div>
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(model => model.CreatedDate, new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.CreatedDate)
-            @Html.ValidationMessageFor(model => model.CreatedDate)
-        </div>
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(model => model.CreatedBy, new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.CreatedBy)
-
-        </div>
+        
     </div>
 
     <div class="form-group">
@@ -67,18 +47,20 @@
             @Html.ValidationMessageFor(model => model.SubCategoryId)
         </div>
     </div>
-
 </div>
-<div class="checkbox">@Html.CheckBox("chkIsDeal")<label for="chkIsDeal">  Is Deal </label></div>
+<div class="checkbox">@Html.CheckBox("chkIsDeal")<label for="chkIsDeal">  Create New Menu Items </label></div>
 <div id="menuItemsPanel" style="display:none" class="form-horizontal">
-    <div class="h4">Menu Items</div>
+    <div>
+        @Html.DropDownListFor(model => model.Id, new SelectList(@ViewBag.MenuItems, "Id", "Name"), new { @multiple = "true", tabindex = "4", required = "required" })
+    </div>
     <div class="appendItems">
         <div id="item-row1">
             <div class="row">
                 <input type="text" name="name" id="ItemName1" placeholder="Name" />
             </div>
             <div class="row">
-                <input type="text" name="imageUrl" id="ItemImageUrl1" placeholder="ImageUrl" />
+                @*<input type="text" name="imageUrl" id="ItemImageUrl1" placeholder="ImageUrl" />*@
+                <input type="file" name="ImageUpload" />
             </div>
             <div class="row">
                 <textarea name="description" id="ItemDescription1" data-val="true" class="text-box multi-line" placeholder="Description"></textarea>
@@ -88,7 +70,7 @@
 
     <div class="row">
         <a href="#" id="AddMoreItems" class="add">Add More</a>
-        
+
     </div>
 </div>
 <div class="form-group">
@@ -101,12 +83,171 @@
     </div>
 </div>
 
-
 <div>
     @Html.ActionLink("Back to List", "Index")
 </div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
-    <script src="~/Scripts/app.js"></script>
+
+    <script type="text/javascript">
+        /// <reference path="app.js" />
+        var NumberOfItems = 1;
+        var serverUrl = "http://localhost:51526";
+        var userName = "@Session["UserName"]";
+        $(document).ready(function () {
+            $('[name="chkIsDeal"]').click(function () {
+                if ($(this).is(':checked')) {
+                    $('#menuItemsPanel').show();
+                }
+                else {
+                    $('#menuItemsPanel').hide();
+                }
+            });
+
+            $('.add').click(function () {
+                NumberOfItems++;
+                $('.appendItems').append('<div id="item-row' + NumberOfItems + '"><div class="row"> <input type="text" name="name" id="ItemName' + NumberOfItems + '" placeholder="Name" /></div><div class="row"><input type="file" name="ImageUpload" /> </div><div class="row"><textarea name="description" id="ItemDescription' + NumberOfItems + '" data-val="true" class="text-box multi-line" placeholder="Description"></textarea></div> </div>');
+
+            });
+            saveMenu();
+        });
+        function validateInputs() {
+            $("#ErrorMessage").html("");
+            $("#SuccessMessage").css("color", "");
+            $("#ErrorMessage").css("color", "");
+            $("#Name,#Price,#ImageUrl,#Description#SubCategoryId").css("border-color", "");
+            if ($("#Name").val() === "" || $("#Price").val() === ""  || $("#Description").val() === ""  || $("#SubCategoryId").val() === "") {
+                $("#ErrorMessage").css("color", "red");
+                if ($("#Name").val() === "") {
+                    $("#Name").css("border-color", "red");
+                    $("#ErrorMessage").html("Name is required");
+                }
+                if ($("#Price").val() === "") {
+                    $("#Price").css("border-color", "red");
+                    $("#ErrorMessage").html("Price is required");
+                }
+                if ($("#ImageUrl").val() === "") {
+                    $("#ImageUrl").css("border-color", "red");
+                    $("#ErrorMessage").html("ImageUrl is required");
+                }
+
+                if ($("#Description").val() === "") {
+                    $("#Description").css("border-color", "red");
+                    $("#ErrorMessage").html("Description is required")
+                }
+                if ($("#SubCategoryId").val() === "") {
+                    $("#SubCategoryId").css("border-color", "red");
+                    $("#ErrorMessage").html("SubCategory is required")
+                }
+                $("#ErrorMessage").html("Red border fields are required")
+                return false;
+            }
+            return true;
+        }
+
+        function saveMenu() {
+            $(".btn").click(function (e) {
+                if (!validateInputs())
+                { return false; }
+                $("#SuccessMessage").html("Saving, please wait ...");
+                var itemIds = '';
+                var menuItems = Array();
+                //declare FormData object
+                var formData = new FormData();
+                var imageName = Array();
+                $("input[name^='ImageUpload']").each(function (i, file) {
+                    var item = $("input[name^='ImageUpload']")[i].files[0];
+                    if (item != null && item != 'undefined') {
+                        formData.append("files[" + i + "]", item)
+                        imageName.push(item.name)
+                    }
+                    
+                });
+                $("#Id option:selected").each(function () {
+                    if (itemIds=='') {
+                        itemIds = $(this).val();
+                    }
+                    else {
+                        itemIds += ',' + $(this).val();
+                    }
+                });
+               
+                if ($('[name="chkIsDeal"]').is(':checked')) {
+                    for (i = 1; i <= NumberOfItems ; i++) {
+
+                        var items = {
+                            Name: $("#ItemName" + (i)).val(),
+                            ImageUrl: imageName[i],
+                            Description: $("#ItemDescription" + (i)).val(),
+                            CreatedBy: userName
+                        };
+
+                        menuItems.push(items);
+                    }
+                }
+
+                var menu = {
+                    Name: $("#Name").val(),
+                    Price: $("#Price").val(),
+                    ImageUrl: imageName[0],
+                    Description: $("#Description").val(),
+                    MenuItems: menuItems,
+                    CreatedBy: userName,
+                    SubCategoryId: $("#SubCategoryId").val(),
+                    MenuItemsIds: itemIds
+                };
+               // console.log(menu);
+             
+                formData.append("menu", JSON.stringify(menu))
+                $.ajax({
+                    //headers: {
+                    //    Accept: "application/json; charset=utf-8",
+                    //    "Content-Type": "application/json; charset=utf-8"
+                    //},
+                    url: serverUrl + '/menus/CreateMenu',
+                    type: 'POST',
+                    cache: true,
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (data) {
+                            if (data == 'session out') {
+                                var url = serverUrl + '/Login/';
+                                window.location.href = url;
+                                return false;
+                            }
+                            if (data == 'ImageUrl is required' || data == 'Please choose either a GIF, JPG or PNG image.' || data == 'Image already Exist') {
+                                $("#ErrorMessage").css("color", "red");
+                                $("#ErrorMessage").html(data);
+                                $("#SuccessMessage").html("");
+                                return false;
+                            } 
+                                
+                            
+                            var url = serverUrl + '/menus/';
+                            window.location.href = url;
+                        }
+                        else {
+                            $("#SuccessMessage").html("");
+                            $("#ErrorMessage").css("color", "red");
+                            $("#ErrorMessage").html('Bad Request');
+                        }
+
+                    },
+
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {alert('df')
+                        $("#SuccessMessage").html("");
+                        $("#ErrorMessage").css("color", "red");
+                        $("#ErrorMessage").html(errorThrown);
+                        return false;
+                    },
+
+                });
+            });
+        }
+    </script>
 }
+

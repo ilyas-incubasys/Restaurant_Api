@@ -85,7 +85,7 @@ namespace RestuarantApp_API.Controllers
             db.Orders.Add(order);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = order.Id }, order);
+            return Ok("ok");//CreatedAtRoute("DefaultApi", new { id = order.Id }, order);
         }
 
         // DELETE api/Orders/5

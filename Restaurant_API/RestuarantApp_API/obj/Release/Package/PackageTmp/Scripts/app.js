@@ -1,4 +1,5 @@
-﻿var NumberOfItems = 1;
+﻿/// <reference path="app.js" />
+var NumberOfItems = 1;
 var serverUrl = "http://localhost:51526";
 $(document).ready(function () {
     $('[name="chkIsDeal"]').click(function () {
@@ -103,8 +104,13 @@ function saveMenu() {
             type: 'POST',
             cache: true,
             data: JSON.stringify(menu),
-            success: function (data) {;
+            success: function (data) {
                 if (data) {
+                    if (data == 'session out') {
+                        var url = serverUrl + '/Login/';
+                        window.location.href = url;
+                        return false;
+                    }
                     var url = serverUrl + '/menus/';
                     window.location.href = url;
                 }
@@ -126,3 +132,51 @@ function saveMenu() {
         });
     });
 }
+
+//function saveMenu() {
+//    $(".btn").click(function (e) {
+//        var jsonObj = {
+//            "total": 30,
+//            "DeliveryAddress": "vvbvbvddfdf",
+//            "CreatedDate": "",
+//            "CreatedBy": "ilyas",
+//            "CustomerId": "1",
+//            "Menus": [
+//                {
+//                    "MenuId": 2, "Quantity": 10
+//                },
+//                {
+//                    "MenuId": 4, "Quantity": 20
+//                }]
+//        };
+//        alert(jsonObj)
+//        $.ajax({
+//            url: serverUrl + '/api/Orders/PostOrder/',
+//            type: 'Post',
+//            dataType: 'json',
+//            contentType: 'application/json',
+//            data: JSON.stringify(jsonObj),
+//            success: function (data) {;
+//                if (data) {
+//                    var url = serverUrl + '/menus/';
+//                    window.location.href = url;
+//                }
+//                else {
+//                    $("#SuccessMessage").html("");
+//                    $("#ErrorMessage").css("color", "red");
+//                    $("#ErrorMessage").html('Bad Request');
+//                }
+
+//            },
+
+//            error: function (XMLHttpRequest, textStatus, errorThrown) {
+//                alert(errorThrown)
+//                $("#SuccessMessage").html("");
+//                $("#ErrorMessage").css("color", "red");
+//                $("#ErrorMessage").html(errorThrown);
+//                return false;
+//            },
+
+//        });
+//    });
+//}

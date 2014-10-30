@@ -17,14 +17,31 @@ namespace RestuarantApp_API.AdminController
         private RestaurantContext db = new RestaurantContext();
 
         // GET: /SubCategories/
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int? categoryId)
         {
-            return View(await db.SubCategories.ToListAsync());
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            ViewBag.Categories = new SelectList(db.Categories, "Id", "Name", categoryId);
+            if (categoryId == null)
+            {
+                return View(await db.SubCategories.ToListAsync());
+            }
+            else
+            {
+                return View(await db.SubCategories.Where(t => t.Categories.Any(o => o.Id == categoryId)).ToListAsync());
+            }
         }
 
         // GET: /SubCategories/Details/5
         public async Task<ActionResult> Details(int? id)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -40,6 +57,10 @@ namespace RestuarantApp_API.AdminController
         // GET: /SubCategories/Create
         public ActionResult Create()
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             return View();
         }
 
@@ -50,6 +71,10 @@ namespace RestuarantApp_API.AdminController
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind(Include="Id,Name,ImageUrl,CreatedDate,CreatedBy")] SubCategory subcategory)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             if (ModelState.IsValid)
             {
                 db.SubCategories.Add(subcategory);
@@ -63,6 +88,10 @@ namespace RestuarantApp_API.AdminController
         // GET: /SubCategories/Edit/5
         public async Task<ActionResult> Edit(int? id)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -82,6 +111,10 @@ namespace RestuarantApp_API.AdminController
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit([Bind(Include="Id,Name,ImageUrl,CreatedDate,CreatedBy")] SubCategory subcategory)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             if (ModelState.IsValid)
             {
                 db.Entry(subcategory).State = EntityState.Modified;
@@ -94,6 +127,10 @@ namespace RestuarantApp_API.AdminController
         // GET: /SubCategories/Delete/5
         public async Task<ActionResult> Delete(int? id)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -111,6 +148,10 @@ namespace RestuarantApp_API.AdminController
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             SubCategory subcategory = await db.SubCategories.FindAsync(id);
             db.SubCategories.Remove(subcategory);
             await db.SaveChangesAsync();

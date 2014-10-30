@@ -1,0 +1,96 @@
+﻿@{
+    ViewBag.Title = "Login";
+}
+
+<h2>Login</h2>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Cpanel</title>
+    <link href="~/css/all.css" rel="stylesheet" media="all" />
+    @*<link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,500' rel='stylesheet' type='text/css'>
+    <script src="http://tinymce.cachefly.net/4.1/tinymce.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>*@
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript">
+
+        var serverUrl = "http://localhost:51526";
+        $(document).ready(function () {
+            $(".btn-login").click(function () {
+                UserLogin()
+            });
+        });
+        function UserLogin() {
+
+            $(".message-area").html("Login, please wait ...");
+            var userName = $('.user').val();
+            var password = $('.pass').val();
+            if (userName.trim() == '') {
+                $(".message-area").html("Please enter correct User Name");
+                return false;
+            }
+            if (password.trim() == '') {
+                $(".message-area").html("Please enter correct Password");
+                return false;
+            }
+            $.ajax({
+                headers: {
+                    Accept: "application/json; charset=utf-8",
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+                url: serverUrl + '/Login/UserLogin',
+                type: 'Post',
+                data: '{"userName":"' + userName + '","password":"' + password + '"}',
+                success: function (data) {;
+                    if (data) {
+                        var url = serverUrl + '/Home/index';
+                        window.location.href = url;
+                    }
+                    else {
+                        $(".message-area").html("");
+                        $(".message-area").css("color", "red");
+                        $(".message-area").html('Not Found');
+                    }
+
+                },
+
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $(".message-area").html("");
+                    $(".message-area").css("color", "red");
+                    $(".message-area").html(errorThrown);
+                    return false;
+                },
+
+            });
+
+        }
+    </script>
+</head>
+
+<html>
+
+<body>
+    <div id="main">
+        <div class="holder">
+            <div class="form-area">
+                <strong class="logo"><a href="#">Website Logo</a></strong>
+                <form class="form-login">
+                    <fieldset>
+                        <div class="head">
+                            <h1>Admin Area</h1>
+                            <strong class="title">Please LOGIN to MANAGE Portal</strong>
+                        </div>
+                        <div class="message-area"></div>
+                        <div class="form-area">
+                            <input type="text" placeholder="Username" class="user">
+                            <input type="password" placeholder="Password" class="pass">
+                            <input type="button" value="Login" class="btn-login">
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

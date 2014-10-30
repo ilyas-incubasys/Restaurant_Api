@@ -5,9 +5,14 @@
 }
 
 <h2>Index</h2>
-
+<form id="getCategories" method="get" action="~/SubCategories/Index">
+    <input type="hidden" value="" name="categoryId" id="categoryId" />
+</form>
+<p>Search Category Wise</p>
 <p>
-    @Html.ActionLink("Create New", "Create")
+
+    @Html.DropDownList("Categories", String.Empty)
+
 </p>
 <table class="table">
     <tr>
@@ -49,3 +54,18 @@
 }
 
 </table>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#Categories').change(function () {
+                $('#categoryId').val($(this).val());
+                $('#getCategories').submit();
+            });
+        });
+
+    </script>
+}
+
+

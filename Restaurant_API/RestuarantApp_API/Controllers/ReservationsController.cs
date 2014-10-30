@@ -79,13 +79,13 @@ namespace RestuarantApp_API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return Ok("Bad Request");
             }
 
             db.Reservation.Add(reservation);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = reservation.Id }, reservation);
+            return Ok("Ok###");//CreatedAtRoute("DefaultApi", new { id = reservation.Id }, reservation);
         }
 
         // DELETE api/Reservations/5

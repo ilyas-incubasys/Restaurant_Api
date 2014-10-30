@@ -6,9 +6,6 @@
 
 <h2>Create</h2>
 
-
-@using (Html.BeginForm()) 
-{
     @Html.AntiForgeryToken()
     
     <div class="form-horizontal">
@@ -25,41 +22,167 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.ImageUrl, new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.ImageUrl, new { @class = "control-label col-md-2", required = "required" })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.ImageUrl)
                 @Html.ValidationMessageFor(model => model.ImageUrl)
             </div>
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.CreatedDate, new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.CreatedDate)
-                @Html.ValidationMessageFor(model => model.CreatedDate)
+    </div>
+<div class="checkbox">@Html.CheckBox("chkIsCreate")<label for="chkIsCreate"> Create New SubCategories </label></div>
+<div id="SubCategoriesPanel" style="display:none" class="form-horizontal">
+    <div>
+        @Html.DropDownListFor(model => model.Id, new SelectList(@ViewBag.SubCategories, "Id", "Name"), new { @multiple = "true", tabindex = "4", required = "required" })
+    </div>
+    <div class="appendSubCategories">
+        <div id="item-row1">
+            <div class="row">
+                <input type="text" name="name" id="SubCatName1" placeholder="Name" />
             </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.CreatedBy, new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.CreatedBy)
-                @Html.ValidationMessageFor(model => model.CreatedBy)
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+            <div class="row">
+                <input type="text" name="imageUrl" id="SubCatImageUrl1" placeholder="ImageUrl" />
             </div>
         </div>
     </div>
-}
 
+    <div class="row">
+        <a href="#" id="AddMoreItems" class="add">Add More</a>
+
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-md-offset-2 col-md-10">
+        <input type="button" value="Create" class="btn btn-default" />
+    </div>
+    <div class="error_message">
+        <div id="SuccessMessage"></div>
+        <div id="ErrorMessage"></div>
+    </div>
+</div>
 <div>
     @Html.ActionLink("Back to List", "Index")
 </div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+<script type="text/javascript">
+    /// <reference path="app.js" />
+    var NumberOfItems = 1;
+    var serverUrl = "http://localhost:51526";
+    var userName = "@Session["UserName"]";
+    $(document).ready(function () {
+        $('[name="chkIsCreate"]').click(function () {
+            if ($(this).is(':checked')) {
+                $('#SubCategoriesPanel').show();
+            }
+            else {
+                $('#SubCategoriesPanel').hide();
+            }
+        });
+
+        $('.add').click(function () {
+            NumberOfItems++;
+            $('.appendSubCategories').append('<div id="item-row' + NumberOfItems + '"><div class="row"> <input type="text" name="name" id="SubCatName' + NumberOfItems + '" placeholder="Name" /></div><div class="row"><input type="text" name="imageUrl" id="SubCatImageUrl' + NumberOfItems + '" placeholder="ImageUrl" /> </div> </div>');
+
+        });
+        saveCategories();
+    });
+    function validateInputs() {
+        $("#ErrorMessage").html("");
+        $("#SuccessMessage").css("color", "");
+        $("#ErrorMessage").css("color", "");
+        $("#Name,#ImageUrl").css("border-color", "");
+        if ($("#Name").val() === "" ||  $("#ImageUrl").val() === "") {
+            $("#ErrorMessage").css("color", "red");
+            if ($("#Name").val() === "") {
+                $("#Name").css("border-color", "red");
+                $("#ErrorMessage").html("Name is required");
+            }
+            if ($("#ImageUrl").val() === "") {
+                $("#ImageUrl").css("border-color", "red");
+                $("#ErrorMessage").html("ImageUrl is required");
+            }
+
+            $("#ErrorMessage").html("Red border fields are required")
+            return false;
+        }
+        return true;
+    }
+
+    function saveCategories() {
+        $(".btn").click(function (e) {
+            if (!validateInputs())
+            { return false; }
+            $("#SuccessMessage").html("Saving, please wait ...");
+            var subCatIds = '';
+            var subCatItems = Array();
+            $("#Id option:selected").each(function () {
+                if (subCatIds == '') {
+                    subCatIds = $(this).val();
+                }
+                else {
+                    subCatIds += ',' + $(this).val();
+                }
+            });
+            if ($('[name="chkIsCreate"]').is(':checked')) {
+                for (i = 1; i <= NumberOfItems ; i++) {
+
+                    var items = {
+                        Name: $("#SubCatName" + (i)).val(),
+                        ImageUrl: $("#SubCatImageUrl" + (i)).val(),
+                        CreatedBy:userName 
+                    };
+
+                    subCatItems.push(items);
+                }
+            }
+
+            var categories = {
+                Name: $("#Name").val(),
+                ImageUrl: $("#ImageUrl").val(),
+                CreatedBy: userName,
+                SubCategories: subCatItems,
+                SubCategoryIds: subCatIds
+            };
+            $.ajax({
+                headers: {
+                    Accept: "application/json; charset=utf-8",
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+                url: serverUrl + '/Categories/CreateCategories',
+                type: 'POST',
+                cache: true,
+                data: JSON.stringify(categories),
+                success: function (data) {
+                    if (data) {
+                        if (data == 'session out') {
+                            var url = serverUrl + '/Login/';
+                            window.location.href = url;
+                            return false;
+                        }
+                        var url = serverUrl + '/categories/';
+                        window.location.href = url;
+                    }
+                    else {
+                        $("#SuccessMessage").html("");
+                        $("#ErrorMessage").css("color", "red");
+                        $("#ErrorMessage").html('Bad Request');
+                    }
+
+                },
+
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $("#SuccessMessage").html("");
+                    $("#ErrorMessage").css("color", "red");
+                    $("#ErrorMessage").html(errorThrown);
+                    return false;
+                },
+
+            });
+        });
+        $
+    }
+</script>
+
 }

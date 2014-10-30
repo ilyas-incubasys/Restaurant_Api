@@ -7,13 +7,13 @@ namespace RestuarantApp_API.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.2-beta1-30916")]
-    public sealed partial class First : IMigrationMetadata
+    public sealed partial class addfirst : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(First));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(addfirst));
         
         string IMigrationMetadata.Id
         {
-            get { return "201410221056467_First"; }
+            get { return "201410291219132_addfirst"; }
         }
         
         string IMigrationMetadata.Source

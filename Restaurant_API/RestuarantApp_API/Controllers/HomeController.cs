@@ -10,6 +10,10 @@ namespace RestuarantApp_API.Controllers
     {
         public ActionResult Index()
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             ViewBag.Title = "Home Page";
 
             return View();

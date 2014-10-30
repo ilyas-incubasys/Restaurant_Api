@@ -20,8 +20,15 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
-                    <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>
+                    @if (Session["UserName"] != null)
+                    {
+                    <li>@Html.ActionLink("Menus", "Index", "Menus", new { area = "" }, null)</li>
+                    <li>@Html.ActionLink("MenuItems", "Index", "MenuItems", new { area = "" }, null)</li>
+                    <li>@Html.ActionLink("Categories", "Index", "Categories", new { area = "" }, null)</li>
+                    <li>@Html.ActionLink("SubCategories", "Index", "SubCategories", new { area = "" }, null)</li>
+                    <li>@Html.ActionLink("Restaurants", "Index", "Restaurants", new { area = "" }, null)</li>
+                    <li>@Html.ActionLink("Branches", "Index", "Branches", new { area = "" }, null)</li>
+                    }
                 </ul>
             </div>
         </div>
@@ -30,7 +37,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+            <p>&copy; @DateTime.Now.Year - Restaurant Management System</p>
         </footer>
     </div>
 

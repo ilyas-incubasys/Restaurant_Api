@@ -44,12 +44,12 @@ namespace RestuarantApp_API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return Ok("Bad Request");
             }
 
             if (id != customer.Id)
             {
-                return BadRequest();
+                return Ok("Bad Request");
             }
 
             db.Entry(customer).State = EntityState.Modified;
@@ -70,7 +70,23 @@ namespace RestuarantApp_API.Controllers
                 }
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok(customer.Id);
+        }
+        // POST api/Customers
+        [ResponseType(typeof(Customer))]
+        public async Task<IHttpActionResult> PostCustomerLogin(Customer customer)
+        {
+            var user = db.Customers.Where(c => c.Email == customer.Email && c.Password == customer.Password).SingleOrDefault();
+            if (user!=null)
+            {
+                return Ok(user);
+            }
+            else
+            {
+                return Ok("Not Found###");
+            }
+
+            //CreatedAtRoute("DefaultApi", new { id = customer.Id }, customer);
         }
 
         // POST api/Customers
@@ -81,11 +97,19 @@ namespace RestuarantApp_API.Controllers
             {
                 return BadRequest(ModelState);
             }
+            var emailExist = db.Customers.Where(c => c.Email == customer.Email).SingleOrDefault();
+            if (emailExist==null)
+            {
+                db.Customers.Add(customer);
+                await db.SaveChangesAsync();
+                return Ok(customer.Id);
+            }
+            else
+            {
+                return Ok("Email Exist");
+            }
 
-            db.Customers.Add(customer);
-            await db.SaveChangesAsync();
-
-            return CreatedAtRoute("DefaultApi", new { id = customer.Id }, customer);
+           //CreatedAtRoute("DefaultApi", new { id = customer.Id }, customer);
         }
 
         // DELETE api/Customers/5

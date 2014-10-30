@@ -24,6 +24,9 @@ namespace RestuarantApp_API.Models
         [DataType(DataType.EmailAddress)]
         public string Email { set; get; }
         [Required]
+        [DataType(DataType.MultilineText)]
+        public string Address { set; get; }
+        [Required]
         [DataType(DataType.Date)]
         public DateTime CreatedDate { set; get; }
 

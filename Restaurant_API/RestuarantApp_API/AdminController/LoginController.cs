@@ -1,4 +1,6 @@
-﻿using RestuarantApp_API.Context;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using RestuarantApp_API.Context;
 using RestuarantApp_API.Models;
 using System;
 using System.Collections.Generic;
@@ -18,28 +20,20 @@ namespace RestuarantApp_API.AdminController
         // GET: /Login/
         public ActionResult Index()
         {
-            CreateMenu("khan", "123456");
             return View();
         }
         [AcceptVerbs(HttpVerbs.Post)]
-        public JsonResult CreateMenu(string userName, string password)
+        public JsonResult UserLogin(string userName, string password)
         {
-            string respponse = string.Empty;
-            var data = Encoding.ASCII.GetBytes(password);
-            var md5 = new MD5CryptoServiceProvider();
-            var hashedPassword = md5.ComputeHash(data);
-            if (ModelState.IsValid)
+            UserManager<Admin> _userManager;
+            _userManager = new UserManager<Admin>(new UserStore<Admin>(db));
+           
+            Admin user = _userManager.Find(userName, password);
+            if (user!=null)
             {
-                var user =  from u in db.Users
-                                   where u.UserName == userName 
-                                   //u.PasswordHash == hashedPassword.ToString()
-                                   select u;
-                if (user != null)
-                {
-                    return Json(true);
-                }
-                else
-                    return Json(false);
+                Session.Add("UserName", user.UserName);
+                Session.Add("UserId", user.Id);
+                return Json(true);
             }
             else
             {

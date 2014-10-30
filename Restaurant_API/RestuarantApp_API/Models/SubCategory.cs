@@ -8,6 +8,7 @@ namespace RestuarantApp_API.Models
 {
     public class SubCategory
     {
+        public SubCategory() { CreatedDate = DateTime.Now; }
         public int Id { set; get; }
         [Required]
         public string Name { set; get; }
@@ -20,7 +21,7 @@ namespace RestuarantApp_API.Models
         public string CreatedBy { set; get; }
 
         //Category Relation
-        public ICollection<Category> Categories { get; set; }
+        public virtual ICollection<Category> Categories { get; set; }
         //Menu Relation
         public ICollection<Menu> Menus { set; get; }
  

@@ -3,7 +3,7 @@ namespace RestuarantApp_API.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class First : DbMigration
+    public partial class addfirst : DbMigration
     {
         public override void Up()
         {
@@ -22,39 +22,67 @@ namespace RestuarantApp_API.Migrations
                 .Index(t => t.RestaurantId);
             
             CreateTable(
-                "dbo.Restaurants",
+                "dbo.Reservations",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Name = c.String(),
-                        HeadOfficeAddress = c.String(),
-                        ImageUrl = c.String(),
+                        ReservationDate = c.String(nullable: false),
+                        ReservationTime = c.String(nullable: false),
+                        NumberOfPersons = c.Int(nullable: false),
+                        CreatedDate = c.DateTime(nullable: false),
+                        CreatedBy = c.String(nullable: false),
+                        Instructions = c.String(),
+                        CustomerId = c.Int(nullable: false),
+                        BranchInfoId = c.Int(nullable: false),
                     })
-                .PrimaryKey(t => t.Id);
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Branches", t => t.BranchInfoId, cascadeDelete: true)
+                .ForeignKey("dbo.Customers", t => t.CustomerId, cascadeDelete: true)
+                .Index(t => t.CustomerId)
+                .Index(t => t.BranchInfoId);
             
             CreateTable(
-                "dbo.Categories",
+                "dbo.Customers",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
                         Name = c.String(nullable: false),
-                        ImageUrl = c.String(),
+                        Phone = c.String(nullable: false),
+                        Password = c.String(nullable: false, maxLength: 100),
+                        Email = c.String(nullable: false),
+                        Address = c.String(nullable: false),
                         CreatedDate = c.DateTime(nullable: false),
-                        CreatedBy = c.String(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.SubCategories",
+                "dbo.Orders",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Name = c.String(nullable: false),
-                        ImageUrl = c.String(),
+                        Total = c.Single(nullable: false),
+                        DeliveryAddress = c.String(nullable: false),
                         CreatedDate = c.DateTime(nullable: false),
                         CreatedBy = c.String(nullable: false),
+                        CustomerId = c.Int(nullable: false),
                     })
-                .PrimaryKey(t => t.Id);
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Customers", t => t.CustomerId, cascadeDelete: true)
+                .Index(t => t.CustomerId);
+            
+            CreateTable(
+                "dbo.OrderMenus",
+                c => new
+                    {
+                        OrderId = c.Int(nullable: false),
+                        MenuId = c.Int(nullable: false),
+                        Quantity = c.Int(nullable: false),
+                    })
+                .PrimaryKey(t => new { t.OrderId, t.MenuId })
+                .ForeignKey("dbo.Menus", t => t.MenuId, cascadeDelete: true)
+                .ForeignKey("dbo.Orders", t => t.OrderId, cascadeDelete: true)
+                .Index(t => t.OrderId)
+                .Index(t => t.MenuId);
             
             CreateTable(
                 "dbo.Menus",
@@ -87,61 +115,39 @@ namespace RestuarantApp_API.Migrations
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.OrderMenus",
-                c => new
-                    {
-                        OrderId = c.Int(nullable: false),
-                        MenuId = c.Int(nullable: false),
-                        Quantity = c.Int(nullable: false),
-                    })
-                .PrimaryKey(t => new { t.OrderId, t.MenuId })
-                .ForeignKey("dbo.Menus", t => t.MenuId, cascadeDelete: true)
-                .ForeignKey("dbo.Orders", t => t.OrderId, cascadeDelete: true)
-                .Index(t => t.OrderId)
-                .Index(t => t.MenuId);
-            
-            CreateTable(
-                "dbo.Orders",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        Total = c.Single(nullable: false),
-                        DeliveryAddress = c.String(nullable: false),
-                        CreatedDate = c.DateTime(nullable: false),
-                        CreatedBy = c.String(nullable: false),
-                        CustomerId = c.Int(nullable: false),
-                    })
-                .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Customers", t => t.CustomerId, cascadeDelete: true)
-                .Index(t => t.CustomerId);
-            
-            CreateTable(
-                "dbo.Customers",
+                "dbo.SubCategories",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
                         Name = c.String(nullable: false),
-                        Phone = c.String(nullable: false),
-                        Password = c.String(nullable: false, maxLength: 100),
-                        Email = c.String(nullable: false),
+                        ImageUrl = c.String(),
                         CreatedDate = c.DateTime(nullable: false),
+                        CreatedBy = c.String(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.Reservations",
+                "dbo.Categories",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        ReservationDate = c.DateTime(nullable: false),
-                        NumberOfPersons = c.Int(nullable: false),
+                        Name = c.String(nullable: false),
+                        ImageUrl = c.String(),
                         CreatedDate = c.DateTime(nullable: false),
                         CreatedBy = c.String(nullable: false),
-                        CustomerId = c.Int(nullable: false),
                     })
-                .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Customers", t => t.CustomerId, cascadeDelete: true)
-                .Index(t => t.CustomerId);
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
+                "dbo.Restaurants",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        Name = c.String(),
+                        HeadOfficeAddress = c.String(),
+                        ImageUrl = c.String(),
+                    })
+                .PrimaryKey(t => t.Id);
             
             CreateTable(
                 "dbo.AspNetRoles",
@@ -215,19 +221,6 @@ namespace RestuarantApp_API.Migrations
                 .Index(t => t.UserId);
             
             CreateTable(
-                "dbo.SubCategoryCategories",
-                c => new
-                    {
-                        SubCategory_Id = c.Int(nullable: false),
-                        Category_Id = c.Int(nullable: false),
-                    })
-                .PrimaryKey(t => new { t.SubCategory_Id, t.Category_Id })
-                .ForeignKey("dbo.SubCategories", t => t.SubCategory_Id, cascadeDelete: true)
-                .ForeignKey("dbo.Categories", t => t.Category_Id, cascadeDelete: true)
-                .Index(t => t.SubCategory_Id)
-                .Index(t => t.Category_Id);
-            
-            CreateTable(
                 "dbo.MenuItemMenus",
                 c => new
                     {
@@ -240,6 +233,19 @@ namespace RestuarantApp_API.Migrations
                 .Index(t => t.MenuItem_Id)
                 .Index(t => t.Menu_Id);
             
+            CreateTable(
+                "dbo.CategorySubCategories",
+                c => new
+                    {
+                        Category_Id = c.Int(nullable: false),
+                        SubCategory_Id = c.Int(nullable: false),
+                    })
+                .PrimaryKey(t => new { t.Category_Id, t.SubCategory_Id })
+                .ForeignKey("dbo.Categories", t => t.Category_Id, cascadeDelete: true)
+                .ForeignKey("dbo.SubCategories", t => t.SubCategory_Id, cascadeDelete: true)
+                .Index(t => t.Category_Id)
+                .Index(t => t.SubCategory_Id);
+            
         }
         
         public override void Down()
@@ -248,48 +254,50 @@ namespace RestuarantApp_API.Migrations
             DropForeignKey("dbo.AspNetUserLogins", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserClaims", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserRoles", "RoleId", "dbo.AspNetRoles");
-            DropForeignKey("dbo.Menus", "SubCategoryId", "dbo.SubCategories");
-            DropForeignKey("dbo.OrderMenus", "OrderId", "dbo.Orders");
+            DropForeignKey("dbo.Branches", "RestaurantId", "dbo.Restaurants");
             DropForeignKey("dbo.Reservations", "CustomerId", "dbo.Customers");
-            DropForeignKey("dbo.Orders", "CustomerId", "dbo.Customers");
+            DropForeignKey("dbo.OrderMenus", "OrderId", "dbo.Orders");
+            DropForeignKey("dbo.Menus", "SubCategoryId", "dbo.SubCategories");
+            DropForeignKey("dbo.CategorySubCategories", "SubCategory_Id", "dbo.SubCategories");
+            DropForeignKey("dbo.CategorySubCategories", "Category_Id", "dbo.Categories");
             DropForeignKey("dbo.OrderMenus", "MenuId", "dbo.Menus");
             DropForeignKey("dbo.MenuItemMenus", "Menu_Id", "dbo.Menus");
             DropForeignKey("dbo.MenuItemMenus", "MenuItem_Id", "dbo.MenuItems");
-            DropForeignKey("dbo.SubCategoryCategories", "Category_Id", "dbo.Categories");
-            DropForeignKey("dbo.SubCategoryCategories", "SubCategory_Id", "dbo.SubCategories");
-            DropForeignKey("dbo.Branches", "RestaurantId", "dbo.Restaurants");
+            DropForeignKey("dbo.Orders", "CustomerId", "dbo.Customers");
+            DropForeignKey("dbo.Reservations", "BranchInfoId", "dbo.Branches");
+            DropIndex("dbo.CategorySubCategories", new[] { "SubCategory_Id" });
+            DropIndex("dbo.CategorySubCategories", new[] { "Category_Id" });
             DropIndex("dbo.MenuItemMenus", new[] { "Menu_Id" });
             DropIndex("dbo.MenuItemMenus", new[] { "MenuItem_Id" });
-            DropIndex("dbo.SubCategoryCategories", new[] { "Category_Id" });
-            DropIndex("dbo.SubCategoryCategories", new[] { "SubCategory_Id" });
             DropIndex("dbo.AspNetUserLogins", new[] { "UserId" });
             DropIndex("dbo.AspNetUserClaims", new[] { "UserId" });
             DropIndex("dbo.AspNetUsers", "UserNameIndex");
             DropIndex("dbo.AspNetUserRoles", new[] { "RoleId" });
             DropIndex("dbo.AspNetUserRoles", new[] { "UserId" });
             DropIndex("dbo.AspNetRoles", "RoleNameIndex");
-            DropIndex("dbo.Reservations", new[] { "CustomerId" });
-            DropIndex("dbo.Orders", new[] { "CustomerId" });
+            DropIndex("dbo.Menus", new[] { "SubCategoryId" });
             DropIndex("dbo.OrderMenus", new[] { "MenuId" });
             DropIndex("dbo.OrderMenus", new[] { "OrderId" });
-            DropIndex("dbo.Menus", new[] { "SubCategoryId" });
+            DropIndex("dbo.Orders", new[] { "CustomerId" });
+            DropIndex("dbo.Reservations", new[] { "BranchInfoId" });
+            DropIndex("dbo.Reservations", new[] { "CustomerId" });
             DropIndex("dbo.Branches", new[] { "RestaurantId" });
+            DropTable("dbo.CategorySubCategories");
             DropTable("dbo.MenuItemMenus");
-            DropTable("dbo.SubCategoryCategories");
             DropTable("dbo.AspNetUserLogins");
             DropTable("dbo.AspNetUserClaims");
             DropTable("dbo.AspNetUsers");
             DropTable("dbo.AspNetUserRoles");
             DropTable("dbo.AspNetRoles");
-            DropTable("dbo.Reservations");
-            DropTable("dbo.Customers");
-            DropTable("dbo.Orders");
-            DropTable("dbo.OrderMenus");
+            DropTable("dbo.Restaurants");
+            DropTable("dbo.Categories");
+            DropTable("dbo.SubCategories");
             DropTable("dbo.MenuItems");
             DropTable("dbo.Menus");
-            DropTable("dbo.SubCategories");
-            DropTable("dbo.Categories");
-            DropTable("dbo.Restaurants");
+            DropTable("dbo.OrderMenus");
+            DropTable("dbo.Orders");
+            DropTable("dbo.Customers");
+            DropTable("dbo.Reservations");
             DropTable("dbo.Branches");
         }
     }

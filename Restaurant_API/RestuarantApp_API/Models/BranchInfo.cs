@@ -20,9 +20,9 @@ namespace RestuarantApp_API.Models
         [Required]
         [DataType(DataType.ImageUrl)]
         public string ImageUrl { set; get; }
-
         //Relations
         public int RestaurantId { set; get; }
         public RestaurantInfo Restaurant { set; get; }
+        public ICollection<Reservation> Reservations { set; get; }
     }
 }

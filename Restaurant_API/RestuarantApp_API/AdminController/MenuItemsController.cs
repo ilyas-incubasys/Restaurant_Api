@@ -17,14 +17,30 @@ namespace RestuarantApp_API.AdminController
         private RestaurantContext db = new RestaurantContext();
 
         // GET: /MenuItems/
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int? menuId)
         {
-            return View(await db.MenuItems.ToListAsync());
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+            ViewBag.Menus = new SelectList(db.Menus, "Id", "Name",menuId);
+            if (menuId==null)
+            {
+                return View(await db.MenuItems.ToListAsync());
+            }
+            else
+            {
+                return View(await db.MenuItems.Where(t=>t.Menus.Any(o=>o.Id==menuId)).ToListAsync());    
+            }
+            
         }
-
         // GET: /MenuItems/Details/5
         public async Task<ActionResult> Details(int? id)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -40,6 +56,10 @@ namespace RestuarantApp_API.AdminController
         // GET: /MenuItems/Create
         public ActionResult Create()
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             return View();
         }
 
@@ -50,6 +70,10 @@ namespace RestuarantApp_API.AdminController
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind(Include="Id,Name,ImageUrl,Description,CreatedDate,CreatedBy")] MenuItem menuitem)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             if (ModelState.IsValid)
             {
                 db.MenuItems.Add(menuitem);
@@ -63,6 +87,10 @@ namespace RestuarantApp_API.AdminController
         // GET: /MenuItems/Edit/5
         public async Task<ActionResult> Edit(int? id)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -82,6 +110,10 @@ namespace RestuarantApp_API.AdminController
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit([Bind(Include="Id,Name,ImageUrl,Description,CreatedDate,CreatedBy")] MenuItem menuitem)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             if (ModelState.IsValid)
             {
                 db.Entry(menuitem).State = EntityState.Modified;
@@ -94,6 +126,10 @@ namespace RestuarantApp_API.AdminController
         // GET: /MenuItems/Delete/5
         public async Task<ActionResult> Delete(int? id)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -111,6 +147,10 @@ namespace RestuarantApp_API.AdminController
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
             MenuItem menuitem = await db.MenuItems.FindAsync(id);
             db.MenuItems.Remove(menuitem);
             await db.SaveChangesAsync();

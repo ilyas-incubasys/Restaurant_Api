@@ -53,7 +53,7 @@ namespace RestuarantApp_API.Controllers
                         + " as CategoryImageurl,mi.id as MenuItemId,mi.name as MenuItemName,mi.ImageUrl "
                         + "as MenuItemImageUrl,mi.Description as MenuItemDescription "
                         + "from menus m "
-                        + " inner join SubCategoryCategories scc  on scc.subcategory_id=m.subcategoryid "
+                        + " inner join CategorySubCategories scc  on scc.subcategory_id=m.subcategoryid "
                         + " inner join Categories c on c.id=scc.category_id "
                         + " left outer join menuitemmenus mm on mm.menu_id=m.id "
                         + " left outer join menuitems mi on mi.id=mm.MenuItem_Id ";
@@ -65,10 +65,14 @@ namespace RestuarantApp_API.Controllers
                                     }}}).ToList()
                                     select v).Distinct().ToList();
             var categories = db.Categories.ToList();
-            Hashtable hashtable = new Hashtable();
-            foreach(var cat in categories)
+            if (menuCategoryDto.Count==0)
             {
-                var list  = menuCategoryDto.Where(o=>o.CategoryName.Equals(cat.Name)).SelectMany(p => p.MenuDtos).ToList();
+                return Ok(menuCategoryDto);
+            }
+            Hashtable hashtable = new Hashtable();
+            foreach (var cat in categories)
+            {
+                var list = menuCategoryDto.Where(o => o.CategoryName.Equals(cat.Name)).SelectMany(p => p.MenuDtos).GroupBy(p=>p.Id).ToList();
                 hashtable.Add(cat.Name, list);
             }
 

@@ -13,6 +13,6 @@ namespace RestuarantApp_API.Dtos
         public string CategoryImageUrl { set; get; }
 
         public virtual ICollection<MenuDto> MenuDtos { set; get; }
-
+        
     }
 }
